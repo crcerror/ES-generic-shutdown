@@ -4,6 +4,7 @@
 # v0.05 Initial version here in this repo Jan.2018 // cyperghost
 # v0.07 added kill -9 switch to get rid off all emulators // julenvitoria
 # v0.10 version for NESPi case // Yahmez, Semper-5
+# v0.20 Added possibilty for regular shutoff (commented now!)
 
 # Up to now 3 devices are supported!
 # 
@@ -111,14 +112,18 @@ function NESPiCase(){
             [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
         fi
 
-    sleep 1
-done
+        sleep 1
+    done
 
-# Initiate Shutdown per ES
-RC_PID=$(check_emurun)
-[[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
-wait_forpid $RC_PID
-es_action es-shutdown
+    # Initiate Shutdown per ES
+    RC_PID=$(check_emurun)
+    [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+    wait_forpid $RC_PID
+    ES_PID=$(check_esrun)
+    [[ -n $ES_PID ]] && es_action es-shutdown
+    
+    # If ES isn't running use regular shutoff
+    #sudo poweroff
 }
 
 # ------------------------------------- M A U S B E R R Y -------------------------------------
@@ -152,9 +157,13 @@ function Mausberry() {
                 RC_PID=$(check_emurun)
                 [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
                 wait_forpid $RC_PID
-                es_action es-shutdown
+                ES_PID=$(check_esrun)
+                [[ -n $ES_PID ]] && es_action es-shutdown
+    
+                # If ES isn't running use regular shutoff
+                #poweroff
             fi
-     done
+    done
 }
 
 # ------------------------------------- O N O F F S H I M -------------------------------------
@@ -176,16 +185,16 @@ function OnOffShim() {
     [[ -n $1 ]] && GPIO_powerswitch=$1 || GPIO_powerswitch=17
 
     echo $trigger_pin > /sys/class/gpio/export
-    echo in > /sys/class/gpio/gpio$trigger_pin/direction
+    echo in > /sys/class/gpio/gpio$GPIO_powerswitch/direction
 
-    power=$(cat /sys/class/gpio/gpio$trigger_pin/value)
+    power=$(cat /sys/class/gpio/gpio$GPIO_powerswitch/value)
 
     # Here we can use Momentary and Fixed Switches
     [ $power = 0 ] && switchtype=1 
     [ $power = 1 ] && switchtype=0 
 
     until [ $power = $switchtype ]; do
-        power=$(cat /sys/class/gpio/gpio$trigger_pin/value)
+        power=$(cat /sys/class/gpio/gpio$GPIO_powerswitch/value)
         sleep 1
     done
 
@@ -193,9 +202,12 @@ function OnOffShim() {
     RC_PID=$(check_emurun)
     [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
     wait_forpid $RC_PID
-    es_action es-shutdown
+    ES_PID=$(check_esrun)
+    [[ -n $ES_PID ]] && es_action es-shutdown
+    
+    # If ES isn't running use regular shutoff
+    #poweroff    
 }
-
 
 # ---------------------------------------------------------------------------------------------
 # ------------------------------------------ M A I N ------------------------------------------
@@ -211,7 +223,7 @@ echo $ES_PID
 # PowerSwitch GPIO 24, input, set pullup resistor!
 # PowerOnControl GPIO 25, output, high
 # Enter other BCM connections to call
-NESPiCase 23 24 25
+# NESPiCase 23 24 25
 
 # Mausberry original script by mausershop
 # Sudo command needed
@@ -230,3 +242,5 @@ NESPiCase 23 24 25
 # PowerSwitch GPIO 17, input, export via bash
 # PowerOnControl GPIO 4, ouput, high, setted low for shutdown!
 # OnOffShim 17 4
+
+echo "Please uncomment one of the switches you are useing"
