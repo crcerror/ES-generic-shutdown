@@ -23,11 +23,10 @@ All scripts support safe shutdown via power button and full detection of running
 So you hopefully will never loose scraped images, favourites and last played ;)
 
 Comment out lines that you don't need! Don't comment out two devices! This may cause issues!
-If you use the NESPiCase then comment out the line `NESPiCase 23 24 25`
-If you use the Mausberry circuit then comment out the line `Mausberry 23 24`
-If you use the Shim form Pimoroni then comment out the line `OnOffShim 17 4`
-
-Use only one device!!!!
+* If you use the NESPiCase then comment out the line `NESPiCase 23 24 25`
+* If you use the Mausberry circuit then comment out the line `Mausberry 23 24`
+* If you use the Shim form Pimoroni then comment out the line `OnOffShim 17 4`
+The numbers displayed are the BCM pins, you can change them as you like but don't change order and use only one device.
 
 ```
 # NESPiCase with mod by Yahmez
