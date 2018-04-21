@@ -141,11 +141,11 @@ function Mausberry() {
     #this is the GPIO pin connected to the lead on switch labeled OUT
     [[ -n $1 ]] && GPIO_powerswitch=$1 || GPIO_powerswitch=23
     #this is the GPIO pin connected to the lead on switch labeled IN
-    [[ -n $3 ]] && GPIO_poweronctrl=$2 || GPIO_poweronctrl=24
+    [[ -n $2 ]] && GPIO_poweronctrl=$2 || GPIO_poweronctrl=24
 
     echo "$GPIO_powerswitch" > /sys/class/gpio/export
     echo "in" > /sys/class/gpio/gpioGPIO_powerswitch/direction
-    echo "GPIO_poweronctrl" > /sys/class/gpio/export
+    echo "$GPIO_poweronctrl" > /sys/class/gpio/export
     echo "out" > /sys/class/gpio/gpio$GPIO_poweronctrl/direction
     echo "1" > /sys/class/gpio/gpio$GPIO_poweronctrl/value
 
@@ -184,7 +184,7 @@ function OnOffShim() {
     #PowerOnControl will be shutoff by systemd - read forum post!!
     [[ -n $1 ]] && GPIO_powerswitch=$1 || GPIO_powerswitch=17
 
-    echo $trigger_pin > /sys/class/gpio/export
+    echo $GPIO_powerswitch > /sys/class/gpio/export
     echo in > /sys/class/gpio/gpio$GPIO_powerswitch/direction
 
     power=$(cat /sys/class/gpio/gpio$GPIO_powerswitch/value)
