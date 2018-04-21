@@ -144,7 +144,7 @@ function Mausberry() {
     [[ -n $2 ]] && GPIO_poweronctrl=$2 || GPIO_poweronctrl=24
 
     echo "$GPIO_powerswitch" > /sys/class/gpio/export
-    echo "in" > /sys/class/gpio/gpioGPIO_powerswitch/direction
+    echo "in" > /sys/class/gpio/gpio$GPIO_powerswitch/direction
     echo "$GPIO_poweronctrl" > /sys/class/gpio/export
     echo "out" > /sys/class/gpio/gpio$GPIO_poweronctrl/direction
     echo "1" > /sys/class/gpio/gpio$GPIO_poweronctrl/value
