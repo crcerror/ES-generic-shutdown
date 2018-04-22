@@ -306,13 +306,13 @@ case "${1^^}" in
 
     "--HELP"|*)
     echo "Help Screen:"
-    echo -e "\nSystemcommand:\n"
+    echo -e "\nSystemcommands:\n"
     echo "--es-pid        Shows PID of ES, if not it shows 0"
     echo "--rc-pid        Shows PID of runcommand.sh - shows 0 if not found"
     echo "--closeemu      Tries to shutdown emulators, with cyperghost method"
     echo "--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff"
     echo "--es-reboot     Shutdown emulators, Cloese ES, performs system reboot"
-    echo "--es-esrestart  Shutdown emulators (if running), Restart ES"
+    echo "--es-restart  Shutdown emulators (if running), Restart ES"
     echo -e "\nSwitchDevices:\n"
     echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
     echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
