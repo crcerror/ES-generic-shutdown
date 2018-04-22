@@ -5,6 +5,7 @@
 # v0.07 added kill -9 switch to get rid off all emulators // julenvitoria
 # v0.10 version for NESPi case // Yahmez, Semper-5
 # v0.20 Added possibilty for regular shutoff (commented now!)
+# v0.30 Added commandline parameters uncommented device shutdowns
 
 # Up to now 3 devices are supported!
 # 
@@ -28,6 +29,7 @@ function get_childpids() {
 # Abolish sleep timer! This one is much better!
 function wait_forpid() {
     local PID=$1
+    [[ -z $PID ]] && return 1
     while [[ -e /proc/$PID ]]; do
         sleep 0.10
     done
@@ -123,7 +125,7 @@ function NESPiCase(){
     [[ -n $ES_PID ]] && es_action es-shutdown
     
     # If ES isn't running use regular shutoff
-    #sudo poweroff
+    sudo poweroff
 }
 
 # ------------------------------------- M A U S B E R R Y -------------------------------------
@@ -161,7 +163,7 @@ function Mausberry() {
                 [[ -n $ES_PID ]] && es_action es-shutdown
     
                 # If ES isn't running use regular shutoff
-                #poweroff
+                poweroff
             fi
     done
 }
@@ -206,41 +208,119 @@ function OnOffShim() {
     [[ -n $ES_PID ]] && es_action es-shutdown
     
     # If ES isn't running use regular shutoff
-    #poweroff    
+    poweroff    
 }
 
 # ---------------------------------------------------------------------------------------------
 # ------------------------------------------ M A I N ------------------------------------------
 # ---------------------------------------------------------------------------------------------
 
-ES_PID=$(check_esrun)
-echo $ES_PID
+case "${1^^}" in
 
-# NESPiCase with mod by Yahmez
-# https://retropie.org.uk/forum/topic/12424
-# Defaults are:
-# ResetSwitch GPIO 23, input, set pullup resistor!
-# PowerSwitch GPIO 24, input, set pullup resistor!
-# PowerOnControl GPIO 25, output, high
-# Enter other BCM connections to call
-# NESPiCase 23 24 25
+    "--NESPICASE")
+        # NESPiCase with mod by Yahmez
+        # https://retropie.org.uk/forum/topic/12424
+        # Defaults are:
+        # ResetSwitch GPIO 23, input, set pullup resistor!
+        # PowerSwitch GPIO 24, input, set pullup resistor!
+        # PowerOnControl GPIO 25, output, high
+        # Enter other BCM connections to call
+        NESPiCase 23 24 25
+    ;;
 
-# Mausberry original script by mausershop
-# Sudo command needed
-# https://mausberry-circuits.myshopify.com/pages/setup
-# Defaults are:
-# PowerSwitch GPIO 23, input, export via bash
-# PowerOnControl GPIO 24, output, export high via bash
-# Mausberry 23 24
+    "--MAUSBERRY")
+        # Mausberry original script by mausershop
+        # Sudo command needed
+        # https://mausberry-circuits.myshopify.com/pages/setup
+        # Defaults are:
+        # PowerSwitch GPIO 23, input, export via bash
+        # PowerOnControl GPIO 24, output, export high via bash
+        Mausberry 23 24
+    ;;
 
-# Pimoroni SHIM ON OFF
-# https://retropie.org.uk/forum/topic/15727
-# Sudo command needed
-# systemd shutoff needed
-# modified scripts by cyperghost
-# Defaults are:
-# PowerSwitch GPIO 17, input, export via bash
-# PowerOnControl GPIO 4, ouput, high, setted low for shutdown!
-# OnOffShim 17 4
+    "--ONOFFSHIM")
+        # Pimoroni SHIM ON OFF
+        # https://retropie.org.uk/forum/topic/15727
+        # Sudo command needed
+        # systemd shutoff needed
+        # modified scripts by cyperghost
+        # Defaults are:
+        # PowerSwitch GPIO 17, input, export via bash 
+        # PowerOnControl GPIO 4, ouput, high, setted low for shutdown!
+        # OnOffShim 17 4
+    ;;
+  
+    "--ES-PID")
+        # Display ES PID to stout
+        ES_PID=$(check_esrun)
+        [[ -n $ES_PID ]] && echo $ES_PID || echo 0
+    ;;
 
-echo "Please uncomment one of the switches you are useing"
+    "--RC-PID")
+        # Display runcommand.sh PID to stout
+        # This helps to detect emulator is running or not
+        RC_PID=$(check_emurun)
+        [[ -n $RC_PID ]] && echo $RC_PID || echo 0
+    ;;
+
+    "--ES-POWEROFF")
+        # Closes running Emulators (if available)
+        # Shutdown ES
+        # Perform poweroff
+        RC_PID=$(check_emurun)
+        [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+        wait_forpid $RC_PID
+        ES_PID=$(check_esrun)
+        [[ -n $ES_PID ]] && es_action es-shutdown
+    ;;
+
+    "--ES-RESTART")
+        # Closes running Emulators (if available)
+        # Shutdown ES
+        # Perform poweroff
+        RC_PID=$(check_emurun)
+        [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+        wait_forpid $RC_PID
+        ES_PID=$(check_esrun)
+        [[ -n $ES_PID ]] && es_action es-restart
+    ;;
+
+    "--ES-REBOOT")
+        # Closes running Emulators (if available)
+        # Shutdown ES
+        # Perform poweroff
+        RC_PID=$(check_emurun)
+        [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+        wait_forpid $RC_PID
+        ES_PID=$(check_esrun)
+        [[ -n $ES_PID ]] && es_action es-sysshutdown
+    ;;
+
+    "--CLOSEEMU")
+         # Only closes running emulators
+        unset pidarray
+        RC_PID=$(check_emurun)
+        [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+        wait_forpid $RC_PID   
+    ;;         
+
+    "--HELP"|*)
+    echo "Help Screen:"
+    echo -e "\nSystemcommand:\n"
+    echo "--es-pid        Shows PID of ES, if not it shows 0"
+    echo "--rc-pid        Shows PID of runcommand.sh - shows 0 if not found"
+    echo "--closeemu      Tries to shutdown emulators, with cyperghost method"
+    echo "--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff"
+    echo "--es-reboot     Shutdown emulators, Cloese ES, performs system reboot"
+    echo "--es-esrestart  Shutdown emulators (if running), Restart ES"
+    echo -e "\nSwitchDevices:\n"
+    echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
+    echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
+    echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
+    echo -e "\nHints:\n"
+    echo "Read this script and the function sections to get better information"
+    echo "Please visit: https://retropie.org.uk/forum/ for questions"
+    echo "-- yours cyperghost"
+    ;;
+
+esac
