@@ -58,7 +58,7 @@ function check_emurun() {
 function check_esrun() {
     local ES_PID="$(pgrep -f "/opt/retropie/supplementary/.*/emulationstation([^.]|$)")"
     echo $ES_PID
-	}
+}
 
 # ---------------------------------------------------------------------------------------------
 # ------------------------------------ E S - A C T I O N S ------------------------------------
@@ -76,6 +76,7 @@ function es_action() {
     touch /tmp/$ES_FILE
     chown pi:pi /tmp/$ES_FILE
     kill $ES_PID
+    wait_forpid $ES_PID
     [[ $ES_FILE == "es-restart" ]] || exit
 }
 
@@ -297,8 +298,8 @@ case "${1^^}" in
     ;;
 
     "--CLOSEEMU")
-         # Only closes running emulators
-        unset pidarray
+        # Only closes running emulators
+	unset pidarray
         RC_PID=$(check_emurun)
         [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
         wait_forpid $RC_PID   
