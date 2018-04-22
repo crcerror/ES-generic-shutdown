@@ -22,23 +22,45 @@ Here is my small contribution for some people out here. This script supports
 All scripts support safe shutdown via power button and full detection of running emulators.
 So you hopefully will never loose scraped images, favourites and last played ;)
 
-Comment out lines that you don't need! Don't comment out second or more devices! This may cause issues!
-The numbers displayed are each BCM pins, you can change them as you like but don't change order and use only one device.
-
-* If you use the NESPiCase then comment out the line `NESPiCase 23 24 25`
-* If you use the Mausberry circuit then comment out the line `Mausberry 23 24`
-* If you use the Shim form Pimoroni then comment out the line `OnOffShim 17 4`
+I added system parameter commands now
 
 ```
-# NESPiCase with mod by Yahmez
-# https://retropie.org.uk/forum/topic/12424
-# Defaults are:
-# ResetSwitch GPIO 23, input, set pullup resistor!
-# PowerSwitch GPIO 24, input, set pullup resistor!
-# PowerOnControl GPIO 25, output, high
-# Enter other BCM connections to call
+Created command line parameters
+We can now call specific commands out of every programming language
 
-NESPiCase 23 24 25
+Systemcommand:
+
+--es-pid        Shows PID of ES, if binary of ES can't be found it returns 0
+--rc-pid        Shows PID of runcommand.sh, that's usefull to detect emulators running
+--closeemu      Tries to shutdown emulators, with cyperghost method
+--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff
+--es-reboot     Shutdown emulators, Closes ES, performs system reboot
+--es-esrestart  Shutdown emulators (if running), Restart ES
+
+SwitchDevices:
+
+--mausberry     If you have a Mausberry device, GPIO 23 24 used!
+--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!
+--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!
+```
+
+The Switch Devices should be setup manually in the script itself.
+
+Take a look to script code you will find blocks like
+Now change the GPIO numbers as you did in your connection
+Please don't exchange sorting order.....!
+
+```
+    --"NESPICASE")
+       # NESPiCase with mod by Yahmez
+       # https://retropie.org.uk/forum/topic/12424
+       # Defaults are:
+       # ResetSwitch GPIO 23, input, set pullup resistor!
+       # PowerSwitch GPIO 24, input, set pullup resistor!
+       # PowerOnControl GPIO 25, output, high
+       # Enter other BCM connections to call
+      NESPiCase 23 24 25
+    ;;      
 ```
 
 This script provides support for 3 devices now. More to come with help from others! So this bash script uses some function calls that may be usefull for extended usecases. 
