@@ -6,10 +6,14 @@
 # v0.10 version for NESPi case // Yahmez, Semper-5
 # v0.20 Added possibilty for regular shutoff (commented now!)
 # v0.30 Added commandline parameters uncommented device shutdowns
+# v0.32 Added privileges check and packages check
 
-# Up to now 3 devices are supported!
-# 
+# NESPI+ is WIP CURRENTLY!
+
+# Up to now 4 devices are supported!
+#
 # NESPIcase! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
+## NESPIplus! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
 # Mausberry! Script needs to be called with sudo, poweroff supported
 # SHIMOnOff! Script needs to be called with sudo, poweroff supported
 
@@ -42,6 +46,7 @@ function close_emulators() {
         kill -9 ${pidarray[z]}
         wait_forpid ${pidarray[z]}
     done
+    unset pidarray
 }
 
 # Emulator currently running?
@@ -64,7 +69,7 @@ function check_esrun() {
 # ------------------------------------ E S - A C T I O N S ------------------------------------
 # ---------------------------------------------------------------------------------------------
 
-# This function can be called as several parameters 
+# This function can be called as several parameters
 # if it is called empty then a poweroff will performed
 # es-shutdown, will close ES and force an poweroff
 # es-sysrestart, will close ES and force an reboot
@@ -124,7 +129,7 @@ function NESPiCase(){
     wait_forpid $RC_PID
     ES_PID=$(check_esrun)
     [[ -n $ES_PID ]] && es_action es-shutdown
-    
+
     # If ES isn't running use regular shutoff
     sudo poweroff
 }
@@ -162,7 +167,7 @@ function Mausberry() {
                 wait_forpid $RC_PID
                 ES_PID=$(check_esrun)
                 [[ -n $ES_PID ]] && es_action es-shutdown
-    
+
                 # If ES isn't running use regular shutoff
                 poweroff
             fi
@@ -193,8 +198,8 @@ function OnOffShim() {
     power=$(cat /sys/class/gpio/gpio$GPIO_powerswitch/value)
 
     # Here we can use Momentary and Fixed Switches
-    [ $power = 0 ] && switchtype=1 
-    [ $power = 1 ] && switchtype=0 
+    [ $power = 0 ] && switchtype=1
+    [ $power = 1 ] && switchtype=0
 
     until [ $power = $switchtype ]; do
         power=$(cat /sys/class/gpio/gpio$GPIO_powerswitch/value)
@@ -207,9 +212,9 @@ function OnOffShim() {
     wait_forpid $RC_PID
     ES_PID=$(check_esrun)
     [[ -n $ES_PID ]] && es_action es-shutdown
-    
+
     # If ES isn't running use regular shutoff
-    poweroff    
+    poweroff
 }
 
 # ---------------------------------------------------------------------------------------------
@@ -226,7 +231,9 @@ case "${1^^}" in
         # PowerSwitch GPIO 24, input, set pullup resistor!
         # PowerOnControl GPIO 25, output, high
         # Enter other BCM connections to call
-        NESPiCase 23 24 25
+        PACK_CHECK="$(dpkg -s raspi-gpio|grep -c installed)"
+        [[ -n $PACK_CHECK ]] && NESPiCase 23 24 25
+        [[ -z $PACK_CHECK ]] && echo "raspi-gpio not found! Please install!"
     ;;
 
     "--MAUSBERRY")
@@ -236,6 +243,7 @@ case "${1^^}" in
         # Defaults are:
         # PowerSwitch GPIO 23, input, export via bash
         # PowerOnControl GPIO 24, output, export high via bash
+        [[ $USER != "root" ]] && echo "Need root privileges... use sudo" && exit
         Mausberry 23 24
     ;;
 
@@ -248,9 +256,10 @@ case "${1^^}" in
         # Defaults are:
         # PowerSwitch GPIO 17, input, export via bash 
         # PowerOnControl GPIO 4, ouput, high, setted low for shutdown!
-        # OnOffShim 17 4
+        [[ $USER != "root" ]] && echo "Need root privileges... use sudo" && exit
+        OnOffShim 17 4
     ;;
-  
+
     "--ES-PID")
         # Display ES PID to stout
         ES_PID=$(check_esrun)
@@ -278,7 +287,7 @@ case "${1^^}" in
     "--ES-RESTART")
         # Closes running Emulators (if available)
         # Shutdown ES
-        # Perform poweroff
+        # Perform restart of ES only
         RC_PID=$(check_emurun)
         [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
         wait_forpid $RC_PID
@@ -289,7 +298,7 @@ case "${1^^}" in
     "--ES-REBOOT")
         # Closes running Emulators (if available)
         # Shutdown ES
-        # Perform poweroff
+        # Perform system reboot
         RC_PID=$(check_emurun)
         [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
         wait_forpid $RC_PID
@@ -299,11 +308,10 @@ case "${1^^}" in
 
     "--CLOSEEMU")
         # Only closes running emulators
-	unset pidarray
-        RC_PID=$(check_emurun)
+	RC_PID=$(check_emurun)
         [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
-        wait_forpid $RC_PID   
-    ;;         
+        wait_forpid $RC_PID
+    ;;
 
     "--HELP"|*)
     echo "Help Screen:"
@@ -318,6 +326,7 @@ case "${1^^}" in
     echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
     echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
     echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
+#   echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
     echo -e "\nHints:\n"
     echo "Read this script and the function sections to get better information"
     echo "Please visit: https://retropie.org.uk/forum/ for questions"
