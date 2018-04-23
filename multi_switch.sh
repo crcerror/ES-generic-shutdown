@@ -232,8 +232,8 @@ case "${1^^}" in
         # PowerOnControl GPIO 25, output, high
         # Enter other BCM connections to call
         PACK_CHECK="$(dpkg -s raspi-gpio|grep -c installed)"
-        [[ -n $PACK_CHECK ]] && NESPiCase 23 24 25
-        [[ -z $PACK_CHECK ]] && echo "raspi-gpio not found! Please install!"
+        [[ $PACK_CHECK == 0 ]] && echo "raspi-gpio not found! Install!" && exit
+        NESPiCase 23 24 25
     ;;
 
     "--MAUSBERRY")
