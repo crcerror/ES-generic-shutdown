@@ -75,7 +75,7 @@ function check_esrun() {
 # es-sysrestart, will close ES and force an reboot
 # es-restart, will close ES and restart it
 function es_action() {
-    local ES_FILE=$1
+    local ES_FILE="$1"
     [[ -z $ES_FILE ]] && ES_FILE="es-shutdown"
     ES_PID="$(check_esrun)"
     touch /tmp/$ES_FILE
@@ -303,7 +303,7 @@ case "${1^^}" in
         [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
         wait_forpid $RC_PID
         ES_PID=$(check_esrun)
-        [[ -n $ES_PID ]] && es_action es-sysshutdown
+        [[ -n $ES_PID ]] && es_action es-sysrestart
     ;;
 
     "--CLOSEEMU")
