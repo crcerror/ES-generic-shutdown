@@ -7,13 +7,14 @@
 # v0.20 Added possibilty for regular shutoff (commented now!)
 # v0.30 Added commandline parameters uncommented device shutdowns
 # v0.32 Added privileges check and packages check
+# v0.40 Added NESPi+ safe shutdown
 
 # NESPI+ is WIP CURRENTLY!
 
 # Up to now 4 devices are supported!
 #
 # NESPIcase! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
-## NESPIplus! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
+# NESPIplus! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
 # Mausberry! Script needs to be called with sudo, poweroff supported
 # SHIMOnOff! Script needs to be called with sudo, poweroff supported
 
@@ -134,6 +135,65 @@ function NESPiCase(){
     sudo poweroff
 }
 
+# ------------------------------------- N E S P I P L U S -------------------------------------
+
+# NESPI+ CASE
+# http://www.retroflag.com
+# Defaults are:
+# ResetSwitch GPIO 2 (BCM 0, SDA), input, set pullup resistor!
+# PowerSwitch GPIO 3 (BCM 1, SCL), input, set pullup resistor!
+# PowerOnControl GPIO 4 (BCM 4), output, high
+# LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
+
+function NESPiPlus(){
+    #Set GPIOs
+    [[ -n $1 ]] && GPIO_resetswitch=$1 || GPIO_resetswitch=0
+    [[ -n $2 ]] && GPIO_powerswitch=$2 || GPIO_powerswitch=1
+    [[ -n $3 ]] && GPIO_poweronctrl=$3 || GPIO_poweronctrl=4
+    [[ -n $4 ]] && GPIO_lediodectrl=$4 || GPIO_lediodectrl=14
+
+    # Init: Use raspi-gpio to set pullup resistors!
+    raspi-gpio set $GPIO_resetswitch ip pu
+    raspi-gpio set $GPIO_powerswitch ip pu
+    raspi-gpio set $GPIO_poweronctrl op dh
+    raspi-gpio set $GPIO_lediodectrl op dh
+
+    until [[ $power == 0 ]]; do
+        power=$(raspi-gpio get $GPIO_powerswitch | grep -c "level=1 fsel=0 func=INPUT")
+        reset=$(raspi-gpio get $GPIO_resetswitch | grep -c "level=1 fsel=0 func=INPUT")
+
+        if [[ $reset == 0 ]]; then
+            RC_PID=$(check_emurun)
+            [[ -z $RC_PID ]] && es_action es-restart
+            [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+        fi
+
+        sleep 1
+    done
+
+    # Flashes LED 4 Times on PowerOff
+    for iteration in 1 2 3 4; do
+        raspi-gpio set $GPIO_lediodectrl op dl
+        sleep 0.25
+        raspi-gpio set $GPIO_lediodectrl op dh
+        sleep 0.25
+    done
+
+    # PowerOff LED, Poweroff PowerCtrl
+    raspi-gpio set $GPIO_lediodectrl op dl
+#    raspi-gpio set $GPIO_poweronctrl op dl #Really have no clue what it does!
+
+    # Initiate Shutdown per ES
+    RC_PID=$(check_emurun)
+    [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+    wait_forpid $RC_PID
+    ES_PID=$(check_esrun)
+    [[ -n $ES_PID ]] && es_action es-shutdown
+
+    # If ES isn't running use regular shutoff
+    sudo poweroff
+}
+
 # ------------------------------------- M A U S B E R R Y -------------------------------------
 
 # Mausberry original script by mausershop
@@ -236,6 +296,21 @@ case "${1^^}" in
         NESPiCase 23 24 25
     ;;
 
+    "--NESPI+")
+        # NESPI+ CASE
+        # http://www.retroflag.com
+        # Defaults are:
+        # ResetSwitch GPIO 2 (BCM 0, SDA), input, set pullup resistor!
+        # PowerSwitch GPIO 3 (BCM 1, SCL), input, set pullup resistor!
+        # PowerOnControl GPIO 4 (BCM 4), output, high
+        # LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
+	# You will loose I2C function due connections using SDA und SCL
+        # Enter other BCM-connections to change behaviour
+        PACK_CHECK="$(dpkg -s raspi-gpio|grep -c installed)"
+        [[ $PACK_CHECK == 0 ]] && echo "raspi-gpio not found! Install!" && exit
+        NESPiPlus 0 1 4 14
+    ;;
+    
     "--MAUSBERRY")
         # Mausberry original script by mausershop
         # Sudo command needed
@@ -326,11 +401,10 @@ case "${1^^}" in
     echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
     echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
     echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
-#   echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
+    echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
     echo -e "\nHints:\n"
     echo "Read this script and the function sections to get better information"
-    echo "Please visit: https://retropie.org.uk/forum/ for questions"
-    echo "-- yours cyperghost"
+    echo "Please visit: https://retropie.org.uk/forum/ for questions // cyperghost 2018"
     ;;
 
 esac
