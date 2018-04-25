@@ -7,7 +7,7 @@
 # v0.20 Added possibilty for regular shutoff (commented now!)
 # v0.30 Added commandline parameters uncommented device shutdowns
 # v0.32 Added privileges check and packages check
-# v0.40 Added NESPi+ safe shutdown
+# v0.41 Added NESPi+ safe shutdown, corrected GPIO numbering
 
 # NESPI+ is WIP CURRENTLY!
 
@@ -40,7 +40,7 @@ function wait_forpid() {
     done
 }
 
-# This will reverse ${paidarray} array and close all emulators
+# This will reverse ${pidarray} and close all emulators
 # This function needs a valid pidarray
 function close_emulators() {
     for ((z=${#pidarray[*]}-1; z>-1; z--)); do
@@ -100,7 +100,7 @@ function es_action() {
 # PowerSwitch GPIO 24, input, set pullup resistor!
 # PowerOnControl GPIO 25, output, high
 
-function NESPiCase(){
+function NESPiCase() {
     #Set GPIOs
     [[ -n $1 ]] && GPIO_resetswitch=$1 || GPIO_resetswitch=23
     [[ -n $2 ]] && GPIO_powerswitch=$2 || GPIO_powerswitch=24
@@ -140,15 +140,15 @@ function NESPiCase(){
 # NESPI+ CASE
 # http://www.retroflag.com
 # Defaults are:
-# ResetSwitch GPIO 2 (BCM 0, SDA), input, set pullup resistor!
-# PowerSwitch GPIO 3 (BCM 1, SCL), input, set pullup resistor!
+# ResetSwitch GPIO 2 (I2C, SDA), input, set pullup resistor!
+# PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
 # PowerOnControl GPIO 4 (BCM 4), output, high
 # LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
 
-function NESPiPlus(){
+function NESPiPlus() {
     #Set GPIOs
-    [[ -n $1 ]] && GPIO_resetswitch=$1 || GPIO_resetswitch=0
-    [[ -n $2 ]] && GPIO_powerswitch=$2 || GPIO_powerswitch=1
+    [[ -n $1 ]] && GPIO_resetswitch=$1 || GPIO_resetswitch=2
+    [[ -n $2 ]] && GPIO_powerswitch=$2 || GPIO_powerswitch=3
     [[ -n $3 ]] && GPIO_poweronctrl=$3 || GPIO_poweronctrl=4
     [[ -n $4 ]] && GPIO_lediodectrl=$4 || GPIO_lediodectrl=14
 
@@ -300,15 +300,15 @@ case "${1^^}" in
         # NESPI+ CASE
         # http://www.retroflag.com
         # Defaults are:
-        # ResetSwitch GPIO 2 (BCM 0, SDA), input, set pullup resistor!
-        # PowerSwitch GPIO 3 (BCM 1, SCL), input, set pullup resistor!
+        # ResetSwitch GPIO 2 (I2C, SDA), input, set pullup resistor!
+        # PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
         # PowerOnControl GPIO 4 (BCM 4), output, high
         # LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
 	# You will loose I2C function due connections using SDA und SCL
         # Enter other BCM-connections to change behaviour
         PACK_CHECK="$(dpkg -s raspi-gpio|grep -c installed)"
         [[ $PACK_CHECK == 0 ]] && echo "raspi-gpio not found! Install!" && exit
-        NESPiPlus 0 1 4 14
+        NESPiPlus 2 3 4 14
     ;;
     
     "--MAUSBERRY")
@@ -389,22 +389,22 @@ case "${1^^}" in
     ;;
 
     "--HELP"|*)
-    echo "Help Screen:"
-    echo -e "\nSystemcommands:\n"
-    echo "--es-pid        Shows PID of ES, if not it shows 0"
-    echo "--rc-pid        Shows PID of runcommand.sh - shows 0 if not found"
-    echo "--closeemu      Tries to shutdown emulators, with cyperghost method"
-    echo "--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff"
-    echo "--es-reboot     Shutdown emulators, Cloese ES, performs system reboot"
-    echo "--es-restart  Shutdown emulators (if running), Restart ES"
-    echo -e "\nSwitchDevices:\n"
-    echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
-    echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
-    echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
-    echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
-    echo -e "\nHints:\n"
-    echo "Read this script and the function sections to get better information"
-    echo "Please visit: https://retropie.org.uk/forum/ for questions // cyperghost 2018"
+        echo "Help Screen:"
+        echo -e "\nSystemcommands:\n"
+        echo "--es-pid        Shows PID of ES, if not it shows 0"
+        echo "--rc-pid        Shows PID of runcommand.sh - shows 0 if not found"
+        echo "--closeemu      Tries to shutdown emulators, with cyperghost method"
+        echo "--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff"
+        echo "--es-reboot     Shutdown emulators, Cloese ES, performs system reboot"
+        echo "--es-restart    Shutdown emulators (if running), Restart ES"
+        echo -e "\nSwitchDevices:\n"
+        echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
+        echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
+        echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
+        echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
+        echo -e "\nHints:\n"
+        echo "Read this script and the function sections to get better information"
+        echo "Please visit: https://retropie.org.uk/forum/ for questions // cyperghost 2018"
     ;;
 
 esac
