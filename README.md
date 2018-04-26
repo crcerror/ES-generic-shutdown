@@ -39,7 +39,7 @@ Systemcommand:
 --closeemu      Tries to shutdown emulators, with cyperghost method
 --es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff
 --es-reboot     Shutdown emulators, Closes ES, performs system reboot
---es-esrestart  Shutdown emulators (if running), Restart ES
+--es-restart    Shutdown emulators (if running), Restart ES
 
 SwitchDevices:
 
