@@ -8,8 +8,7 @@
 # v0.30 Added commandline parameters uncommented device shutdowns
 # v0.32 Added privileges check and packages check
 # v0.41 Added NESPi+ safe shutdown, corrected GPIO numbering
-
-# NESPI+ is WIP CURRENTLY!
+# v0.42 Added NESPi+ fan control shutoff // thx cloudlink & gollumer
 
 # Up to now 4 devices are supported!
 #
@@ -142,7 +141,7 @@ function NESPiCase() {
 # Defaults are:
 # ResetSwitch GPIO 2 (I2C, SDA), input, set pullup resistor!
 # PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
-# PowerOnControl GPIO 4 (BCM 4), output, high
+# PowerOnControl GPIO 4 (BCM 4), output, high, fan control!
 # LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
 
 function NESPiPlus() {
@@ -181,7 +180,7 @@ function NESPiPlus() {
 
     # PowerOff LED, Poweroff PowerCtrl
     raspi-gpio set $GPIO_lediodectrl op dl
-#    raspi-gpio set $GPIO_poweronctrl op dl #Really have no clue what it does!
+    raspi-gpio set $GPIO_poweronctrl op dl #This turns off fan on board connector!
 
     # Initiate Shutdown per ES
     RC_PID=$(check_emurun)
@@ -302,7 +301,7 @@ case "${1^^}" in
         # Defaults are:
         # ResetSwitch GPIO 2 (I2C, SDA), input, set pullup resistor!
         # PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
-        # PowerOnControl GPIO 4 (BCM 4), output, high
+        # PowerOnControl GPIO 4 (BCM 4), output, high, fan control!
         # LEDiodeControl GPIO 14 (BCM 14,TxD ), output, high, low (flash LED)
 	# You will loose I2C function due connections using SDA und SCL
         # Enter other BCM-connections to change behaviour
@@ -391,11 +390,11 @@ case "${1^^}" in
     "--HELP"|*)
         echo "Help Screen:"
         echo -e "\nSystemcommands:\n"
-        echo "--es-pid        Shows PID of ES, if not it shows 0"
-        echo "--rc-pid        Shows PID of runcommand.sh - shows 0 if not found"
-        echo "--closeemu      Tries to shutdown emulators, with cyperghost method"
+        echo "--es-pid        Shows PID of ES, if ES is not found it outputs 0"
+        echo "--rc-pid        Shows PID of runcommand.sh, if not found it outputs 0"
+        echo "--closeemu      Tries to shutdown emulators with cyperghosts method"
         echo "--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff"
-        echo "--es-reboot     Shutdown emulators, Cloese ES, performs system reboot"
+        echo "--es-reboot     Shutdown emulators, Closes ES, performs system reboot"
         echo "--es-restart    Shutdown emulators (if running), Restart ES"
         echo -e "\nSwitchDevices:\n"
         echo "--mausberry     If you have a Mausberry device, GPIO 23 24 used!"
