@@ -9,11 +9,13 @@
 # v0.32 Added privileges check and packages check
 # v0.41 Added NESPi+ safe shutdown, corrected GPIO numbering
 # v0.42 Added NESPi+ fan control shutoff // thx cloudlink & gollumer
+# v0.50 Added support for generic Button connected to any GPIO
 
-# Up to now 4 devices are supported!
+# Up to now 5 devices are supported!
 #
 # NESPIcase! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
 # NESPIplus! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, reset, poweroff
+# GenericBt! Install raspi-gpio via "sudo apt install raspi-gpio", no sudo needed, poweroff
 # Mausberry! Script needs to be called with sudo, poweroff supported
 # SHIMOnOff! Script needs to be called with sudo, poweroff supported
 
@@ -193,6 +195,48 @@ function NESPiPlus() {
     sudo poweroff
 }
 
+# --------------------------------------- G E N E R I C ---------------------------------------
+
+# Generic button
+# https://scribles.net/adding-power-switch-on-raspberry-pi/ and many others!
+# Just connect any button latching or momentary to your desired GPIO and to common ground
+# With raspi-gpio we set internal pullup resistor!
+# script by cyperghost
+# This works with any user, no sudo needed
+# Install raspi-gpio with: sudo apt install raspi-gpio
+# Defaults are:
+# PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
+# GPIO3 provides shutdown and let the Raspberry be awakend from deepsleep
+
+function GenericButton() {
+    # Set GPIO
+    [[ -n $1 ]] && GPIO_powerswitch=$1 || GPIO_powerswitch=3
+
+    # Init: Use raspi-gpio to set pullup resistors!
+    raspi-gpio set $GPIO_powerswitch ip pu
+
+    #Precheck if you use momentary or latching switch
+    power=$(raspi-gpio get $GPIO_powerswitch | grep -c "level=1 fsel=0 func=INPUT")
+    [[ $power == "0" ]] && switchtype="1" # This is a latching switch
+    [[ $power == "1" ]] && switchtype="0" # This is a momentary push button
+
+
+    until [[ $power == $switchtype ]]; do
+        power=$(raspi-gpio get $GPIO_powerswitch | grep -c "level=1 fsel=0 func=INPUT")
+        sleep 1
+    done
+
+    # Initiate Shutdown per ES
+    RC_PID=$(check_emurun)
+    [[ -n $RC_PID ]] && get_childpids $RC_PID && close_emulators
+    wait_forpid $RC_PID
+    ES_PID=$(check_esrun)
+    [[ -n $ES_PID ]] && es_action es-shutdown
+
+    # If ES isn't running use regular shutoff
+    sudo poweroff
+}
+
 # ------------------------------------- M A U S B E R R Y -------------------------------------
 
 # Mausberry original script by mausershop
@@ -309,7 +353,23 @@ case "${1^^}" in
         [[ $PACK_CHECK == 0 ]] && echo "raspi-gpio not found! Install!" && exit
         NESPiPlus 2 3 4 14
     ;;
-    
+
+    "--GENERIC")
+        # Generic button
+        # https://scribles.net/adding-power-switch-on-raspberry-pi/ and many others!
+        # Just connect any button latching or momentary to your desired GPIO and to common ground
+        # With raspi-gpio we set internal pullup resistor!
+        # script by cyperghost
+        # This works with any user, no sudo needed
+        # Install raspi-gpio with: sudo apt install raspi-gpio
+        # Defaults are:
+        # PowerSwitch GPIO 3 (I2C, SCL), input, set pullup resistor!
+        # GPIO3 provides shutdown and let the Raspberry be awakend from deepsleep
+        PACK_CHECK="$(dpkg -s raspi-gpio|grep -c installed)"
+        [[ $PACK_CHECK == 0 ]] && echo "raspi-gpio not found! Install!" && exit
+        GenericButton 3
+    ;;
+
     "--MAUSBERRY")
         # Mausberry original script by mausershop
         # Sudo command needed
@@ -401,6 +461,7 @@ case "${1^^}" in
         echo "--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!"
         echo "--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!"
         echo "--nespi+        If you own a  NESPi+ Case, turn switch in ON position"
+        echo "--generic       Connect latching or push button to GPIO and ground (def: GPIO3)"
         echo -e "\nHints:\n"
         echo "Read this script and the function sections to get better information"
         echo "Please visit: https://retropie.org.uk/forum/ for questions // cyperghost 2018"
