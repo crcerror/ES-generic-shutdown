@@ -6,7 +6,7 @@ A script that includes a few known standard power switches (MAUSBERRY, SHIM, POL
 **This case rocks! It really can totally shutoff power! But we need to edit some service files!**
 First: install raspi-gpio with `sudo apt install raspi-gpio`
 Second: install shutdown_fan script as descriped in point 6
-Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollab for your patince!
+Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollumer for your patince!
 
 1. Login with SSH
 2. Type in commands `mkdir /home/pi/RetroPie/scripts && cd /home/pi/RetroPie/scripts`
