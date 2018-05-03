@@ -157,8 +157,8 @@ function NESPiPlus() {
     # Init: Use raspi-gpio to set pullup resistors!
     raspi-gpio set $GPIO_resetswitch ip pu
     raspi-gpio set $GPIO_powerswitch ip pu
-    raspi-gpio set $GPIO_poweronctrl op dh
-    raspi-gpio set $GPIO_lediodectrl op pn dh
+    raspi-gpio set $GPIO_poweronctrl op pn dh
+    raspi-gpio set $GPIO_lediodectrl op dh
 
     until [[ $power == 0 ]]; do
         power=$(raspi-gpio get $GPIO_powerswitch | grep -c "level=1 fsel=0 func=INPUT")
