@@ -10,6 +10,7 @@
 # v0.41 Added NESPi+ safe shutdown, corrected GPIO numbering
 # v0.42 Added NESPi+ fan control shutoff // thx cloudlink & gollumer
 # v0.50 Added support for generic Button connected to any GPIO
+# v0.51 NESPi+ fan control is 100% working - place a script to systemd service like Pimoroni OnOffShim
 
 # Up to now 5 devices are supported!
 #
@@ -157,7 +158,7 @@ function NESPiPlus() {
     raspi-gpio set $GPIO_resetswitch ip pu
     raspi-gpio set $GPIO_powerswitch ip pu
     raspi-gpio set $GPIO_poweronctrl op dh
-    raspi-gpio set $GPIO_lediodectrl op dh
+    raspi-gpio set $GPIO_lediodectrl op pn dh
 
     until [[ $power == 0 ]]; do
         power=$(raspi-gpio get $GPIO_powerswitch | grep -c "level=1 fsel=0 func=INPUT")
@@ -182,7 +183,6 @@ function NESPiPlus() {
 
     # PowerOff LED, Poweroff PowerCtrl
     raspi-gpio set $GPIO_lediodectrl op dl
-    raspi-gpio set $GPIO_poweronctrl op dl #This turns off fan on board connector!
 
     # Initiate Shutdown per ES
     RC_PID=$(check_emurun)
