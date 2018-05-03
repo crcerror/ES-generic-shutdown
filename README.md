@@ -8,6 +8,7 @@ First: install raspi-gpio with `sudo apt install raspi-gpio`
 Second: install shutdown_fan script as descriped in point 6
 Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollumer for your patince!
 
+0. Set NESPi+ case switch to safe shutdown *ON*
 1. Login with SSH
 2. Type in commands `mkdir /home/pi/RetroPie/scripts && cd /home/pi/RetroPie/scripts`
 3. DL: `wget https://raw.githubusercontent.com/crcerror/ES-generic-shutdown/master/multi_switch.sh && chmod +x multi_switch.sh`
