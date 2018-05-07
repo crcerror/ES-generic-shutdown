@@ -36,17 +36,26 @@ To install:
     * 5.4 the **sudo** commands depends of usecase, Mausberry and OnOffShim needs it for GPIO export, both NESPiCase(+) not
 6. Give me some feedback ;)
 
-Here is my small contribution for some people out here. This script supports 
-* NESPiCase (Shutdown-Mod by Yahmez)
-* NESPi+ Case (Original from RetroFlag)
-* GenericButton (multi purpose)
-* MausBerry device (original script, modified for safe shutdown
-* Pimoroni OnOff Shim (script modified by me)
+## Command Line Parameters
+**Systemcommand:**
 
-All scripts support safe shutdown via power button and full detection of running emulators.
-So you hopefully will never loose scraped images, favourites and last played ;)
+* `--es-pid        Shows PID of ES, if not it shows 0`
+* `--rc-pid        Shows PID of runcommand.sh - shows 0 if not found`
+* `--es-systemd    Hook for the famous "Gracefully exit with metadata saved"-Service by @meleu`
+* `--es-closeemu      Tries to shutdown emulators, with cyperghost method`
+* `--es-poweroff   Shutdown emulators (if running), Closes ES, performs poweroff`
+* `--es-reboot     Shutdown emulators, Cloese ES, performs system reboot`
+* `--es-restart  Shutdown emulators (if running), Restart ES`
 
-I added system parameter commands now
+**SwitchDevices:**
+
+* `--mausberry     If you have a Mausberry device, GPIO 23 24 used!`
+* `--onoffshim     If you have the Pimoroni OnOff SHIM GPIO 17 and 4 used!`
+* `--nespicase     If you use the NESPICASE with yahmez-mod GPIO 23 24 25 used!`
+* `--nespi+        If you use the NESPI+ CASE original from RetroFlag GPIO 2 3 4 14 used!`
+* `--generic     You can use latching and momentary button for this connected to any GPIO and common ground, default is GPIO 3 as only this provides powerdown and repower ability`
+
+## I added system parameter commands now
 
 ```
 Created command line parameters
@@ -69,7 +78,7 @@ SwitchDevices:
 --nespi+        If you use the regular NESPi+ Case, GPIO 2 3 4 14 are used!
 ```
 
-# Setup your GPIOs via commandline
+## Setup your GPIOs via commandline
 
 Up to now 4 parameters are supported
 1. `powerbtn=` with this command you set desired GPIO the **powerbutton** is attached to. If you left unsigned or you enter wrong setting, then default values are used. All devices support that command
