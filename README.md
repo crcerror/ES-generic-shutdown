@@ -69,26 +69,21 @@ SwitchDevices:
 --nespi+        If you use the regular NESPi+ Case, GPIO 2 3 4 14 are used!
 ```
 
-The Switch Devices should be setup manually in the script itself.
+# Setup your GPIOs via commandline
 
-Take a look to script code you will find blocks like
-Now change the GPIO numbers as you did in your connection
-Please don't exchange sorting order.....!
+Up to now 4 parameters are supported
+1. `powerbtn=` with this command you set desired GPIO the **powerbutton** is attached to. If you left unsigned or you enter wrong setting, then default values are used. All devices support that command
+2. `resetbtn=` with this command you set desired GPIO the **resetbutton** is attached to. If you left unsigned or you enter wrong setting, then default values are used. Only the both NESPi cases supports that type. So if you use this command on a generic button it will be ignored!
+3. `powerctrl=` with this command you set desired GPIO the **power ON control** is attached to. All devices needs this, except the generic button only! If you enter wrong values or leave it blank the default values for expected device are used. This command indicates the power device in which state the Raspberry is, so a complete power cut can be performed!
+4. `ledctrl=` with this command you set desired GPIO a **LED can be shut ON or OFF**. Up to now only the NESPi cases supports that feature. I think I can integrate it to other devices, too.
 
-```
-    --"NESPICASE")
-       # NESPiCase with mod by Yahmez
-       # https://retropie.org.uk/forum/topic/12424
-       # Defaults are:
-       # ResetSwitch GPIO 23, input, set pullup resistor!
-       # PowerSwitch GPIO 24, input, set pullup resistor!
-       # PowerOnControl GPIO 25, output, high
-       # Enter other BCM connections to call
-      NESPiCase 23 24 25
-    ;;      
-```
+So you set for example your Mausberry-switch via commandline:
+1. default values: `multi_switch.sh --mausberry` this will use **GPIO23 for power button** and **GPIO24 for power ON control**.
+2. `multi_switch.sh --mausberry powerbtn=17` this will use **GPIO17 for power button** and **GPIO24 for power ON control** still as default
+3. `multi_switch.sh --mausberry powerctrl=4 powerbtn=3` this will use **GPIO3 for power button** and **GPIO4 for power ON control**
+4. `multi_switch.sh --mausberry powerbutton=3 powerctrl=3a` will use default values **GPIO23 for power button** and **GPIO24 for power ON control** as parameters were all setted wrong.
 
-This script provides support for 3 devices now. More to come with help from others! So this bash script uses some function calls that may be usefull for extended usecases. 
+This script provides support for 5 devices now. More to come with help from others! So this bash script uses some function calls that may be usefull for extended usecases. 
 
 # Todo:
 * ~~We are missing dkpg-check for package~~ (done in v0.32)
