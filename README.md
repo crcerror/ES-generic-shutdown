@@ -4,9 +4,9 @@ A script that includes a few known standard power switches (MAUSBERRY, SHIM, POL
 ## NESPi+ Instructions!
 
 **This case rocks! It really can totally shutoff power! But we need to edit some service files!**
-First: install raspi-gpio with `sudo apt install raspi-gpio`
-Second: install shutdown_fan script as descriped in point 6
-Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollumer for your patince!
+* First: install raspi-gpio with `sudo apt install raspi-gpio`
+* Second: install shutdown_fan script as descriped in point 6
+* Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollumer for your patince!
 
 0. Set NESPi+ case switch to safe shutdown *ON*
 1. Login with SSH
@@ -90,7 +90,7 @@ So you set for example your Mausberry-switch via commandline:
 1. default values: `multi_switch.sh --mausberry` this will use **GPIO23 for power button** and **GPIO24 for power ON control**.
 2. `multi_switch.sh --mausberry powerbtn=17` this will use **GPIO17 for power button** and **GPIO24 for power ON control** still as default
 3. `multi_switch.sh --mausberry powerctrl=4 powerbtn=3` this will use **GPIO3 for power button** and **GPIO4 for power ON control**
-4. `multi_switch.sh --mausberry powerbutton=3 powerctrl=3a` will use default values **GPIO23 for power button** and **GPIO24 for power ON control** as parameters were all setted wrong.
+4. `multi_switch.sh --mausberry powerbutton=3 powerctrl=3a` will use default values **GPIO23 for power button** and **GPIO24 for power ON control** as parameters were all setted wrong (It should be **powerbtn not powerbutton** and only integers are accepted so **powerctrl=3a** is not accepted).
 
 This script provides support for 5 devices now. More to come with help from others! So this bash script uses some function calls that may be usefull for extended usecases. 
 
