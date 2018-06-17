@@ -1,6 +1,22 @@
 # ES-generic-shutdown
 A script that includes a few known standard power switches (MAUSBERRY, SHIM, POLOLU) and gots a default config for a safe shutdown.
 
+## Quick help
+
+Every Parameter gots it's own helppage now:
+
+* type `./multi_switch.sh` without arguments will display just a short help page
+* type `./multi_switch.sh -h` brings an extended help page with all arguments online
+* type `./multi_switch.sh --COMMAND help` will display the specific helppage for the argument or command given
+ 
+ remember you can set now GPIOs via commandline, no need to edit the script manual - type for ex. `./multi_switch.sh --nespi+ help` to get help instructions for your NESPI+ enclousure.
+ 
+ # Dedicated help pages on RetroPie forum
+ 
+ * Example to invoke the script into PYTHON-CODE? [I've written a small tutorial here!](https://retropie.org.uk/forum/topic/17506)
+* [Detailed instructions to install multi_switch script to NESPi+ case](https://retropie.org.uk/forum/post/145609)
+* [Pimorono OnOffShim, gpio powerdown via bash-file (see 3rd posting)](https://retropie.org.uk/forum/topic/15727/)
+
 ## NESPi+ Instructions!
 
 **This case rocks! It really can totally shutoff power! But we need to edit some service files!**
