@@ -11,8 +11,9 @@ Every Parameter gots it's own helppage now:
  
  remember you can set now GPIOs via commandline, no need to edit the script manual - type for ex. `./multi_switch.sh --nespi+ help` to get help instructions for your NESPI+ enclousure.
  
- # Dedicated help pages on RetroPie forum
+ ## Dedicated help pages on RetroPie forum
  
+ * Let's us discuss the script here [Multi Switch Shutdown Script on RetroPie forum](https://retropie.org.uk/forum/topic/17415)
  * Example to invoke the script into PYTHON-CODE? [I've written a small tutorial here!](https://retropie.org.uk/forum/topic/17506)
 * [Detailed instructions to install multi_switch script to NESPi+ case](https://retropie.org.uk/forum/post/145609)
 * [Pimorono OnOffShim, gpio powerdown via bash-file (see 3rd posting)](https://retropie.org.uk/forum/topic/15727/)
