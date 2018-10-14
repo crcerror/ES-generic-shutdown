@@ -9,4 +9,4 @@
 # and make it executable with chmod +x shutdown_fan
 # You need root for this
 
-[ $1 = "poweroff" ] && raspi-gpio set 4 op pn dl
+[ "$1" = "poweroff" ] && raspi-gpio set 4 op pn dl
