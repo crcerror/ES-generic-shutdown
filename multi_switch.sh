@@ -337,8 +337,12 @@ function NESPiPlus() {
                 reset=$(raspi-gpio get $GPIO_resetswitch | grep -c "level=1 fsel=0 func=INPUT")
 
                 if [[ $reset == 0 ]]; then
+                    # Initiate Reboot per ES
                     es_action --ES-CLOSEEMU    #* Close running emulators (if present)
                     es_action --ES-REBOOT      #* Restart (using EmulationStation method)
+
+                    # If ES isn't running use regular reboot
+                    sudo reboot
                 else
                     [[ -z $RC_PID ]] && es_action --ES-RESTART     #* If $RC_PID is NULL, restart EmulationStation
                     [[ -n $RC_PID ]] && es_action --ES-CLOSEEMU    #* If $RC_PID is not NULL, close running emulator
