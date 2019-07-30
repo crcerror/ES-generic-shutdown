@@ -20,6 +20,6 @@ chown -R pi:pi ../scripts
 sed -i -e '/\/home\/pi\/RetroPie\/scripts\/multi_switch.sh/ d' -e '1i /home/pi/RetroPie/scripts/multi_switch.sh --nespi+ &' /opt/retropie/configs/all/autostart.sh
 
 # This is shutdown script, it seems to be used in some bare cases
-#cd /lib/systemd/system-shutdown
-#wget -N -q --show-progress https://raw.githubusercontent.com/crcerror/ES-generic-shutdown/master/shutdown_fan
-#chmod +x shutdown_fan
+cd /lib/systemd/system-shutdown
+wget -N -q --show-progress https://raw.githubusercontent.com/crcerror/ES-generic-shutdown/master/shutdown_fan
+chmod +x shutdown_fan
