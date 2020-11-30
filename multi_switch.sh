@@ -64,7 +64,7 @@ function close_emulators() {
         then
             kill ${pidarray[z]}
             wait_forpid ${pidarray[z]}
-	fi
+        fi
     done
     unset pidarray
 }
