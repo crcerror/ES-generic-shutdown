@@ -60,8 +60,11 @@ function wait_forpid() {
 # This function needs a valid pidarray
 function close_emulators() {
     for ((z=${#pidarray[*]}-1; z>-1; z--)); do
-        kill ${pidarray[z]}
-        wait_forpid ${pidarray[z]}
+        if ps -p ${pidarray[z]} > /dev/null
+        then
+            kill ${pidarray[z]}
+            wait_forpid ${pidarray[z]}
+        fi
     done
     unset pidarray
 }
