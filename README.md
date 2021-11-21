@@ -24,6 +24,7 @@ Every Parameter gots it's own helppage now:
 * First: install raspi-gpio with `sudo apt install raspi-gpio`
 * Second: install shutdown_fan script as descriped in point 6
 * Today (03/05/18) I got a NESPi+ case so I was able to elaborate the issue. Thanks to gollumer for your patince!
+* Note: When using OSMC, the default user is osmc (not pi), so change the path /home/pi with /home/osmc in the commands below.
 
 0. Set NESPi+ case switch to safe shutdown *ON*
 1. Login with SSH
